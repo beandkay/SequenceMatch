@@ -120,4 +120,4 @@ dependencies:
     - urllib3==1.26.3
     - werkzeug==1.0.1
     - zipp==3.4.0
-prefix: /gs/hs0/tga-tslab/wyidong/anaconda3/envs/ssl
+prefix: /opt/anaconda3/envs/ssl

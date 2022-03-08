@@ -87,8 +87,7 @@ class BasicDataset(Dataset):
                     return idx, img_w, target
             else:
                 if self.alg == 'sequencematch':
-                    return idx, img_w, self.medium_transform(
-                        img), self.strong_transform(img)
+                    return idx, img_w, self.medium_transform(img), self.strong_transform(img)
                 if self.alg == 'doublematch':
                     return idx, img_w, self.strong_transform(img)
                 if self.alg == 'fixmatch':

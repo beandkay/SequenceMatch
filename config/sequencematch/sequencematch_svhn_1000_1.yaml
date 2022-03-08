@@ -14,7 +14,7 @@ hard_label: True
 T: 0.5
 p_cutoff: 0.95
 ulb_loss_ratio: 1.0
-uratio: 1
+uratio: 7
 ema_m: 0.999
 optim: SGD
 lr: 0.03
@@ -37,6 +37,6 @@ seed: 0
 world_size: 1
 rank: 0
 multiprocessing_distributed: True
-dist_url: tcp://127.0.0.1:10003
+dist_url: tcp://127.0.0.1:10063
 dist_backend: nccl
 gpu: None

@@ -103,7 +103,7 @@ def main_worker(gpu, ngpus_per_node, args):
     logger = get_logger(args.save_name, save_path, logger_level)
     logger.warning(f"USE GPU: {args.gpu} for training")
 
-    # SET SequenceMatch: class SequenceMatch in models.SequenceMatch
+    # SET sequencematch: class sequencematch in models.sequencematch
     args.bn_momentum = 1.0 - 0.999
     if 'imagenet' in args.dataset.lower():
         _net_builder = net_builder('ResNet50', False, None, is_remix=False)
@@ -139,6 +139,7 @@ def main_worker(gpu, ngpus_per_node, args):
     scheduler = get_cosine_schedule_with_warmup(optimizer,
                                                 args.num_train_iter,
                                                 num_warmup_steps=args.num_train_iter * 0)
+    
     ## set SGD and cosine lr on SequenceMatch
     model.set_optimizer(optimizer, scheduler)
 
@@ -176,14 +177,15 @@ def main_worker(gpu, ngpus_per_node, args):
 
     import copy
     model.ema_model = copy.deepcopy(model.model)
-
+    
     logger.info(f"model_arch: {model}")
     logger.info(f"Arguments: {args}")
 
     cudnn.benchmark = True
+    
     if args.rank != 0 and args.distributed:
         torch.distributed.barrier()
- 
+        
     # Construct Dataset & DataLoader
     if args.dataset.lower() != "imagenet":
         train_dset = SSL_Dataset(args, alg='sequencematch', name=args.dataset, train=True,
@@ -194,14 +196,11 @@ def main_worker(gpu, ngpus_per_node, args):
         eval_dset = _eval_dset.get_dset()
     else:
         image_loader = ImageNetLoader(root_path=args.data_dir, num_labels=args.num_labels,
-                                      num_class=args.num_classes)
+                                      num_class=args.num_classes, medium=False)
         lb_dset = image_loader.get_lb_train_data()
         ulb_dset = image_loader.get_ulb_train_data()
         eval_dset = image_loader.get_lb_test_data()
-    if args.rank == 0 and args.distributed:
-        torch.distributed.barrier()
- 
-    
+
     loader_dict = {}
     dset_dict = {'train_lb': lb_dset, 'train_ulb': ulb_dset, 'eval': eval_dset}
 

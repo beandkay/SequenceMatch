@@ -151,10 +151,14 @@ class FixMatch:
                 T = self.t_fn(self.it)
                 p_cutoff = self.p_fn(self.it)
 
+#                unsup_loss, mask, select, pseudo_lb = consistency_loss(logits_x_ulb_s,
+#                                                                       logits_x_ulb_w,
+#                                                                       'ce', T, p_cutoff,
+#                                                                       use_hard_labels=args.hard_label)
                 unsup_loss, mask, select, pseudo_lb = consistency_loss(logits_x_ulb_s,
-                                                                       logits_x_ulb_w,
-                                                                       'ce', T, p_cutoff,
-                                                                       use_hard_labels=args.hard_label)
+                                                    logits_x_ulb_w,
+                                                    'sc', T, p_cutoff,
+                                                    use_hard_labels=args.hard_label)
 
                 total_loss = sup_loss + self.lambda_u * unsup_loss
 

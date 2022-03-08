@@ -69,13 +69,22 @@ def net_builder(net_name, from_name: bool, net_conf=None, is_remix=False):
         elif net_name == 'WideResNetVar':
             import models.nets.wrn_var as net
             builder = getattr(net, 'build_WideResNetVar')()
+        elif net_name == 'WideResNetVarSD':
+            import models.nets.wrn_var_sd as net
+            builder = getattr(net, 'build_WideResNetVarSD')()
+        elif net_name == 'WideResNetSD':
+            import models.nets.wrn_sd as net
+            builder = getattr(net, 'build_WideResNetSD')()
         elif net_name == 'ResNet50':
             import models.nets.resnet as net
             builder = getattr(net, 'build_ResNet50')(is_remix)
+        elif net_name == 'ResNet50SD':
+            import models.nets.resnet_sd as net
+            builder = getattr(net, 'build_ResNet50SD')(is_remix)
         else:
             assert Exception("Not Implemented Error")
 
-        if net_name != 'ResNet50':
+        if net_name != 'ResNet50' and net_name != 'ResNet50SD':
             setattr_cls_from_kwargs(builder, net_conf)
         return builder.build
 

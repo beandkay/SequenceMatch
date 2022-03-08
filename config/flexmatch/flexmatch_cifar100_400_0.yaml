@@ -20,7 +20,7 @@ optim: SGD
 lr: 0.03
 momentum: 0.9
 weight_decay: 0.001
-amp: False
+amp: True
 net: WideResNet
 net_from_name: False
 depth: 28

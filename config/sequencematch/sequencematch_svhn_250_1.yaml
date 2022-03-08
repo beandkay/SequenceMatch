@@ -1,5 +1,5 @@
 save_dir: ./saved_models
-save_name: sequencematch_svhn_250_1
+save_name: sequencematch_svhn_250_0
 resume: False
 load_path: None
 overwrite: True
@@ -33,7 +33,7 @@ train_sampler: RandomSampler
 num_classes: 10
 num_workers: 1
 alg: sequencematch
-seed: 1
+seed: 0
 world_size: 1
 rank: 0
 multiprocessing_distributed: True
