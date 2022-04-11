@@ -61,7 +61,7 @@ def default_loader(path):
 
 
 class ImagenetDataset(torchvision.datasets.ImageFolder):
-    def __init__(self, root, transform, ulb, num_labels=-1):
+    def __init__(self, root, transform, ulb, num_labels=-1, medium=False):
         super().__init__(root, transform)
         self.ulb = ulb
         self.num_labels = num_labels
@@ -82,10 +82,14 @@ class ImagenetDataset(torchvision.datasets.ImageFolder):
         self.class_to_idx = class_to_idx
         self.samples = samples
         self.targets = [s[1] for s in samples]
+        self.medium = medium
 
         if self.ulb:
             self.strong_transform = copy.deepcopy(transform)
             self.strong_transform.transforms.insert(0, RandAugment(3, 5))
+            if self.medium:
+                self.medium_transform = copy.deepcopy(transform)
+                self.medium_transform.transforms.insert(0, RandAugment(1, 5))
 
     def __getitem__(self, index):
         path, target = self.samples[index]
@@ -94,8 +98,8 @@ class ImagenetDataset(torchvision.datasets.ImageFolder):
             sample_transformed = self.transform(sample)
         if self.target_transform is not None:
             target = self.target_transform(target)
-        return (index, sample_transformed, target) if not self.ulb else (
-            index, sample_transformed, self.strong_transform(sample))
+        return (index, sample_transformed, target) if not self.ulb else ((index, sample_transformed, self.strong_transform(sample)) if not self.medium else (
+            index, sample_transformed, self.medium_transform(sample), self.strong_transform(sample)))
 
     def make_dataset(
             self,
@@ -141,9 +145,10 @@ class ImagenetDataset(torchvision.datasets.ImageFolder):
 
 
 class ImageNetLoader:
-    def __init__(self, root_path, num_labels=-1, num_class=1000):
+    def __init__(self, root_path, num_labels=-1, num_class=1000, medium=False):
         self.root_path = os.path.join(root_path, 'imagenet')
         self.num_labels = num_labels // num_class
+        self.medium = medium
 
     def get_transform(self, train, ulb):
         if train:
@@ -168,7 +173,7 @@ class ImageNetLoader:
 
     def get_ulb_train_data(self):
         transform = self.get_transform(train=True, ulb=True)
-        data = ImagenetDataset(root=os.path.join(self.root_path, "train"), transform=transform, ulb=True)
+        data = ImagenetDataset(root=os.path.join(self.root_path, "train"), transform=transform, ulb=True, medium=self.medium)
         return data
 
     def get_lb_test_data(self):
@@ -256,11 +261,11 @@ class SSL_Dataset:
             ulb_data = dset_ulb.data.transpose([0, 2, 3, 1])
             return data, targets, ulb_data
 
-    def get_dset(self, is_ulb=False,
+    def get_dset(self, is_ulb=False, medium_transform=None,
                  strong_transform=None, onehot=False):
         """
         get_dset returns class BasicDataset, containing the returns of get_data.
-        
+
         Args
             is_ulb: If True, returned dataset generates a pair of weak and strong augmented images.
             strong_transform: list of strong_transform (augmentation) if use_strong_transform is True。
@@ -275,21 +280,21 @@ class SSL_Dataset:
         transform = self.transform
 
         return BasicDataset(self.alg, data, targets, num_classes, transform,
-                            is_ulb, strong_transform, onehot)
+                            is_ulb, medium_transform, strong_transform, onehot)
 
     def get_ssl_dset(self, num_labels, index=None, include_lb_to_ulb=True,
-                     strong_transform=None, onehot=False):
+                     medium_transform=None, strong_transform=None, onehot=False):
         """
         get_ssl_dset split training samples into labeled and unlabeled samples.
         The labeled data is balanced samples over classes.
-        
+
         Args:
             num_labels: number of labeled data.
             index: If index of np.array is given, labeled data is not randomly sampled, but use index for sampling.
             include_lb_to_ulb: If True, consistency regularization is also computed for the labeled data.
             strong_transform: list of strong transform (RandAugment in FixMatch)
             onehot: If True, the target is converted into onehot vector.
-            
+
         Returns:
             BasicDataset (for labeled data), BasicDataset (for unlabeld data)
         """
@@ -297,7 +302,7 @@ class SSL_Dataset:
         if self.alg == 'fullysupervised':
             lb_data, lb_targets = self.get_data()
             lb_dset = BasicDataset(self.alg, lb_data, lb_targets, self.num_classes,
-                                   self.transform, False, None, onehot)
+                                   self.transform, False, None, None, onehot)
             return lb_dset, None
 
         if self.name.upper() == 'STL10':
@@ -327,10 +332,10 @@ class SSL_Dataset:
             json.dump(out, w)
         # print(Counter(ulb_targets.tolist()))
         lb_dset = BasicDataset(self.alg, lb_data, lb_targets, self.num_classes,
-                               self.transform, False, None, onehot)
+                               self.transform, False, None, None, onehot)
 
         ulb_dset = BasicDataset(self.alg, ulb_data, ulb_targets, self.num_classes,
-                                self.transform, True, strong_transform, onehot)
+                                self.transform, True, medium_transform, strong_transform, onehot)
         # print(lb_data.shape)
         # print(ulb_data.shape)
         return lb_dset, ulb_dset

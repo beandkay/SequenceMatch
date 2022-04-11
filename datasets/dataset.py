@@ -16,7 +16,6 @@ class BasicDataset(Dataset):
     This class supports strong augmentation for Fixmatch,
     and return both weakly and strongly augmented images.
     """
-
     def __init__(self,
                  alg,
                  data,
@@ -24,9 +23,11 @@ class BasicDataset(Dataset):
                  num_classes=None,
                  transform=None,
                  is_ulb=False,
+                 medium_transform=None,
                  strong_transform=None,
                  onehot=False,
-                 *args, **kwargs):
+                 *args,
+                 **kwargs):
         """
         Args
             data: x_data
@@ -51,6 +52,9 @@ class BasicDataset(Dataset):
             if strong_transform is None:
                 self.strong_transform = copy.deepcopy(transform)
                 self.strong_transform.transforms.insert(0, RandAugment(3, 5))
+            if medium_transform is None:
+                self.medium_transform = copy.deepcopy(transform)
+                self.medium_transform.transforms.insert(0, RandAugment(1, 5))
         else:
             self.strong_transform = strong_transform
 
@@ -67,7 +71,8 @@ class BasicDataset(Dataset):
             target = None
         else:
             target_ = self.targets[idx]
-            target = target_ if not self.onehot else get_onehot(self.num_classes, target_)
+            target = target_ if not self.onehot else get_onehot(
+                self.num_classes, target_)
 
         # set augmented images
 
@@ -79,8 +84,13 @@ class BasicDataset(Dataset):
                 img = Image.fromarray(img)
             img_w = self.transform(img)
             if not self.is_ulb:
-                return idx, img_w, target
+                    return idx, img_w, target
             else:
+                if self.alg == 'sequencematch':
+                    return idx, img_w, self.medium_transform(
+                        img), self.strong_transform(img)
+                if self.alg == 'doublematch':
+                    return idx, img_w, self.strong_transform(img)
                 if self.alg == 'fixmatch':
                     return idx, img_w, self.strong_transform(img)
                 elif self.alg == 'flexmatch':
@@ -101,9 +111,11 @@ class BasicDataset(Dataset):
                     rotate_v_list = [0, 90, 180, 270]
                     rotate_v1 = np.random.choice(rotate_v_list, 1).item()
                     img_s1 = self.strong_transform(img)
-                    img_s1_rot = torchvision.transforms.functional.rotate(img_s1, rotate_v1)
+                    img_s1_rot = torchvision.transforms.functional.rotate(
+                        img_s1, rotate_v1)
                     img_s2 = self.strong_transform(img)
-                    return idx, img_w, img_s1, img_s2, img_s1_rot, rotate_v_list.index(rotate_v1)
+                    return idx, img_w, img_s1, img_s2, img_s1_rot, rotate_v_list.index(
+                        rotate_v1)
                 elif self.alg == 'fullysupervised':
                     return idx
 

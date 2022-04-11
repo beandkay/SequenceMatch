@@ -19,12 +19,16 @@ def setattr_cls_from_kwargs(cls, kwargs):
     # overlap the value by kwargs
     for key in kwargs.keys():
         if hasattr(cls, key):
-            print(f"{key} in {cls} is overlapped by kwargs: {getattr(cls, key)} -> {kwargs[key]}")
+            print(
+                f"{key} in {cls} is overlapped by kwargs: {getattr(cls, key)} -> {kwargs[key]}"
+            )
         setattr(cls, key, kwargs[key])
 
 
 def test_setattr_cls_from_kwargs():
+
     class _test_cls:
+
         def __init__(self):
             self.a = 1
             self.b = 'hello'
@@ -46,12 +50,13 @@ def net_builder(net_name, from_name: bool, net_conf=None, is_remix=False):
     """
     if from_name:
         import torchvision.models as models
-        model_name_list = sorted(name for name in models.__dict__
-                                 if name.islower() and not name.startswith("__")
-                                 and callable(models.__dict__[name]))
+        model_name_list = sorted(
+            name for name in models.__dict__ if name.islower()
+            and not name.startswith("__") and callable(models.__dict__[name]))
 
         if net_name not in model_name_list:
-            assert Exception(f"[!] Networks\' Name is wrong, check net config, \
+            assert Exception(
+                f"[!] Networks\' Name is wrong, check net config, \
                                expected: {model_name_list}  \
                                received: {net_name}")
         else:
@@ -64,25 +69,36 @@ def net_builder(net_name, from_name: bool, net_conf=None, is_remix=False):
         elif net_name == 'WideResNetVar':
             import models.nets.wrn_var as net
             builder = getattr(net, 'build_WideResNetVar')()
+        elif net_name == 'WideResNetVarSD':
+            import models.nets.wrn_var_sd as net
+            builder = getattr(net, 'build_WideResNetVarSD')()
+        elif net_name == 'WideResNetSD':
+            import models.nets.wrn_sd as net
+            builder = getattr(net, 'build_WideResNetSD')()
         elif net_name == 'ResNet50':
-            import models.nets.resnet50 as net
+            import models.nets.resnet as net
             builder = getattr(net, 'build_ResNet50')(is_remix)
+        elif net_name == 'ResNet50SD':
+            import models.nets.resnet_sd as net
+            builder = getattr(net, 'build_ResNet50SD')(is_remix)
         else:
             assert Exception("Not Implemented Error")
 
-        if net_name != 'ResNet50':
+        if net_name != 'ResNet50' and net_name != 'ResNet50SD':
             setattr_cls_from_kwargs(builder, net_conf)
         return builder.build
 
 
 def test_net_builder(net_name, from_name, net_conf=None):
     builder = net_builder(net_name, from_name, net_conf)
-    print(f"net_name: {net_name}, from_name: {from_name}, net_conf: {net_conf}")
+    print(
+        f"net_name: {net_name}, from_name: {from_name}, net_conf: {net_conf}")
     print(builder)
 
 
 def get_logger(name, save_path=None, level='INFO'):
     logger = logging.getLogger(name)
+    logger.propagate = False
     logger.setLevel(getattr(logging, level))
 
     log_format = logging.Formatter('[%(asctime)s %(levelname)s] %(message)s')
