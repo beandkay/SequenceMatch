@@ -131,9 +131,7 @@ class DoubleMatch:
 
         classwise_acc = torch.zeros((args.num_classes, )).cuda(args.gpu)
 
-        for (_, x_lb, y_lb), (x_ulb_idx, x_ulb_w,
-                              x_ulb_s) in zip(self.loader_dict['train_lb'],
-                                              self.loader_dict['train_ulb']):
+        for (_, x_lb, y_lb), (x_ulb_idx, x_ulb_w, x_ulb_s) in zip(self.loader_dict['train_lb'], self.loader_dict['train_ulb']):
 
             # prevent the training iterations exceed args.num_train_iter
             if self.it > args.num_train_iter:
@@ -183,7 +181,8 @@ class DoubleMatch:
                                                                                 p_model,
                                                                                 'ce', T, p_cutoff,
                                                                                 use_hard_labels=args.hard_label,
-                                                                                use_DA=args.use_DA)
+                                                                                use_DA=args.use_DA,
+                                                                                flex=args.flex)
 
                 if x_ulb_idx[select == 1].nelement() != 0:
                     selected_label[x_ulb_idx[select == 1]] = pseudo_lb[select == 1]
@@ -194,15 +193,13 @@ class DoubleMatch:
             if args.amp:
                 scaler.scale(total_loss).backward()
                 if (args.clip > 0):
-                    torch.nn.utils.clip_grad_norm_(self.model.parameters(),
-                                                   args.clip)
+                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), args.clip)
                 scaler.step(self.optimizer)
                 scaler.update()
             else:
                 total_loss.backward()
                 if (args.clip > 0):
-                    torch.nn.utils.clip_grad_norm_(self.model.parameters(),
-                                                   args.clip)
+                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), args.clip)
                 self.optimizer.step()
 
             self.scheduler.step()
@@ -214,13 +211,14 @@ class DoubleMatch:
 
             # tensorboard_dict update
             tb_dict = {}
+            for label in selected_label:
+                tb_dict[f'selected_label/{label}'] = selected_label[label].detach()
             tb_dict['train/sup_loss'] = sup_loss.detach()
             tb_dict['train/unsup_loss'] = unsup_loss.detach()
             tb_dict['train/total_loss'] = total_loss.detach()
             tb_dict['train/mask_ratio'] = 1.0 - mask.detach()
             tb_dict['lr'] = self.optimizer.param_groups[0]['lr']
-            tb_dict['train/prefecth_time'] = start_batch.elapsed_time(
-                end_batch) / 1000.
+            tb_dict['train/prefecth_time'] = start_batch.elapsed_time(end_batch) / 1000.
             tb_dict['train/run_time'] = start_run.elapsed_time(end_run) / 1000.
 
             # Save model for each 10K steps and best model for each 1K steps
@@ -352,8 +350,7 @@ class DoubleMatch:
     def interleave(self, xy, batch):
         nu = len(xy) - 1
         offsets = self.interleave_offsets(batch, nu)
-        xy = [[v[offsets[p]:offsets[p + 1]] for p in range(nu + 1)]
-              for v in xy]
+        xy = [[v[offsets[p]:offsets[p + 1]] for p in range(nu + 1)] for v in xy]
         for i in range(1, nu + 1):
             xy[0][i], xy[i][i] = xy[i][i], xy[0][i]
         return [torch.cat(v, dim=0) for v in xy]

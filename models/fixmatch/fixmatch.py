@@ -151,15 +151,14 @@ class FixMatch:
                 T = self.t_fn(self.it)
                 p_cutoff = self.p_fn(self.it)
 
-#                unsup_loss, mask, select, pseudo_lb = consistency_loss(logits_x_ulb_s,
-#                                                                       logits_x_ulb_w,
-#                                                                       'ce', T, p_cutoff,
-#                                                                       use_hard_labels=args.hard_label)
                 unsup_loss, mask, select, pseudo_lb = consistency_loss(logits_x_ulb_s,
-                                                    logits_x_ulb_w,
-                                                    'sc', T, p_cutoff,
-                                                    use_hard_labels=args.hard_label)
+                                                            logits_x_ulb_w,
+                                                            'ce', T, p_cutoff,
+                                                            use_hard_labels=args.hard_label)
 
+                if x_ulb_idx[select == 1].nelement() != 0:
+                    selected_label[x_ulb_idx[select == 1]] = pseudo_lb[select == 1]
+                    
                 total_loss = sup_loss + self.lambda_u * unsup_loss
 
             # parameter updates
@@ -184,6 +183,8 @@ class FixMatch:
 
             # tensorboard_dict update
             tb_dict = {}
+            for label in x_ulb_idx:
+                tb_dict[f'selected_label/{label}'] = selected_label[x_ulb_idx==label].detach()
             tb_dict['train/sup_loss'] = sup_loss.detach()
             tb_dict['train/unsup_loss'] = unsup_loss.detach()
             tb_dict['train/total_loss'] = total_loss.detach()
