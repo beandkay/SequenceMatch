@@ -1,7 +1,7 @@
 data_statistics/
 data/
 saved_models/
-.dvc*
+.dvcignore
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
