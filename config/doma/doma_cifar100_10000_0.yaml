@@ -1,7 +1,7 @@
 save_dir: ./saved_models
 save_name: doublematch_cifar100_10000_0
-resume: False
-load_path: None
+resume: True
+load_path: saved_models/doublematch_cifar100_10000_0/model_best.pth
 overwrite: True
 use_tensorboard: True
 epoch: 1

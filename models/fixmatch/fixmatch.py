@@ -183,8 +183,6 @@ class FixMatch:
 
             # tensorboard_dict update
             tb_dict = {}
-            for i in range(args.num_classes):
-                tb_dict[f'selected_label/{i}'] = selected_label[i].detach()
             tb_dict['train/sup_loss'] = sup_loss.detach()
             tb_dict['train/unsup_loss'] = unsup_loss.detach()
             tb_dict['train/total_loss'] = total_loss.detach()
