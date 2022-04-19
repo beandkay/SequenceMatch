@@ -60,7 +60,9 @@ def consistency_loss(logits_s, logits_w, class_acc, p_target, p_model, p_labels,
                 pseudo_label = torch.softmax(logits_w / T, dim=-1)
                 masked_loss = ce_loss(logits_s, pseudo_label, use_hard_labels) * mask
                 
-        kld = F.kl_div(torch.log_softmax(logits_s, dim=-1), torch.softmax(logits_w / T, dim=-1), reduction='none') * (1.0 - mask)
+        kld = F.kl_div(torch.log_softmax(logits_s, dim=-1), torch.softmax(logits_w / T, dim=-1), reduction='none')
+        kld = kld * (1.0 - mask).unsqueeze(dim=-1).repeat(1, pseudo_label.shape[1])
+        kld = torch.sum(kld, dim=1)
         return masked_loss.mean() + kld.mean(), mask.mean(), select, max_idx.long(), p_model
 
     else:
