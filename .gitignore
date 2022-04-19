@@ -7,6 +7,9 @@ saved_models/
 __pycache__/
 *.py[cod]
 *$py.class
+*.pdf
+*.txt
+plot*.py
 
 # C extensions
 *.so
