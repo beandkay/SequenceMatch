@@ -105,6 +105,7 @@ class DoubleMatch:
             # print('p_target:', p_target)
 
         p_model = None
+        p_labels = None
 
         # for gpu profiling
         start_batch = torch.cuda.Event(enable_timing=True)
@@ -179,6 +180,7 @@ class DoubleMatch:
                                                                                 classwise_acc,
                                                                                 p_target,
                                                                                 p_model,
+                                                                                p_labels,
                                                                                 'ce', T, p_cutoff,
                                                                                 use_hard_labels=args.hard_label,
                                                                                 use_DA=args.use_DA,
@@ -213,6 +215,7 @@ class DoubleMatch:
             tb_dict = {}
             for i in range(args.num_classes):
                 tb_dict[f'selected_label/{i}'] = selected_label[i].detach()
+                tb_dict[f'classwise_acc/{i}'] = classwise_acc[i].detach()
             tb_dict['train/sup_loss'] = sup_loss.detach()
             tb_dict['train/unsup_loss'] = unsup_loss.detach()
             tb_dict['train/total_loss'] = total_loss.detach()
