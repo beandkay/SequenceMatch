@@ -12,7 +12,8 @@ import os
 import contextlib
 from train_utils import AverageMeter
 
-from .sequencematch_utils import consistency_loss_uda, consistency_loss_flex, Get_Scalar
+from .sequencematch_utils import consistency_loss_flex, Get_Scalar
+from ..uda.uda_utils import consistency_loss as consistency_loss_uda
 from train_utils import ce_loss, wd_loss, EMA, Bn_Controller
 
 from sklearn.metrics import *
