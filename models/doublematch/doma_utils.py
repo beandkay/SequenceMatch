@@ -13,7 +13,7 @@ class Get_Scalar:
         return self.value
 
 
-def consistency_loss(logits_s, logits_w, class_acc, p_target, p_model, name='ce',
+def consistency_loss(logits_s, logits_w, class_acc, p_target, p_model, p_labels, name='ce',
                      T=1.0, p_cutoff=0.0, use_hard_labels=True, use_DA=False, flex=False):
     assert name in ['ce', 'L2']
     logits_w = logits_w.detach()
@@ -60,7 +60,7 @@ def consistency_loss(logits_s, logits_w, class_acc, p_target, p_model, name='ce'
                 pseudo_label = torch.softmax(logits_w / T, dim=-1)
                 masked_loss = ce_loss(logits_s, pseudo_label, use_hard_labels) * mask
                 
-        kld = F.kl_div(torch.log_softmax(logits_s, dim=-1), torch.softmax(logits_w / T, dim=-1), reduction='batchmean') * (1.0 - mask)
+        kld = F.kl_div(torch.log_softmax(logits_s, dim=-1), torch.softmax(logits_w / T, dim=-1), reduction='none') * (1.0 - mask)
         return masked_loss.mean() + kld.mean(), mask.mean(), select, max_idx.long(), p_model
 
     else:
