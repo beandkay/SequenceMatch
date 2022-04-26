@@ -68,7 +68,7 @@ class ImagenetDataset(torchvision.datasets.ImageFolder):
         is_valid_file = None
         extensions = ('.jpg', '.jpeg', '.png', '.ppm', '.bmp', '.pgm', '.tif', '.tiff', '.webp')
         classes, class_to_idx = self._find_classes(self.root)
-        samples = self.make_dataset(self.root, class_to_idx, extensions, is_valid_file)
+        samples = self.__make_dataset__(self.root, class_to_idx, extensions, is_valid_file)
         if len(samples) == 0:
             msg = "Found 0 files in subfolders of: {}\n".format(self.root)
             if extensions is not None:
@@ -101,7 +101,7 @@ class ImagenetDataset(torchvision.datasets.ImageFolder):
         return (index, sample_transformed, target) if not self.ulb else ((index, sample_transformed, self.strong_transform(sample)) if not self.medium else (
             index, sample_transformed, self.medium_transform(sample), self.strong_transform(sample)))
 
-    def make_dataset(
+    def __make_dataset__(
             self,
             directory,
             class_to_idx,
