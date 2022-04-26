@@ -21,7 +21,7 @@ optim: SGD
 lr: 0.03
 momentum: 0.9
 weight_decay: 0.0003
-amp: False
+amp: True
 net: ResNet50
 net_from_name: False
 depth: 0
