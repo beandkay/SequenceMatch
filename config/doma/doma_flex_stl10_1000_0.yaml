@@ -1,7 +1,7 @@
 save_dir: ./saved_models
 save_name: doublematch_flex_stl10_1000_0
 resume: False
-load_path: None
+load_path: none
 overwrite: True
 use_tensorboard: True
 epoch: 1
