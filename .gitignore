@@ -1,6 +1,7 @@
 data_statistics/
 data/
 saved_models/
+results/
 .dvcignore
 
 # Byte-compiled / optimized / DLL files
