@@ -1,5 +1,5 @@
 save_dir: ./saved_models
-save_name: doublematch_flex_imagenet_100000_0
+save_name: refixmatch_imagenet_100000_0
 resume: False
 load_path: None
 overwrite: True
@@ -11,7 +11,6 @@ num_labels: 100000
 batch_size: 128
 eval_batch_size: 256
 hard_label: True
-flex: True
 T: 0.5
 p_cutoff: 0.7
 ulb_loss_ratio: 1.0
@@ -33,7 +32,7 @@ dataset: imagenet
 train_sampler: RandomSampler
 num_classes: 1000
 num_workers: 1
-alg: doublematch
+alg: refixmatch
 seed: 0
 world_size: 1
 rank: 0

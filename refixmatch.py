@@ -14,7 +14,7 @@ import torch.multiprocessing as mp
 
 from utils import net_builder, get_logger, count_parameters, over_write_args_from_file
 from train_utils import TBLog, get_optimizer, get_cosine_schedule_with_warmup
-from models.doublematch.doma import DoubleMatch
+from models.refixmatch.refixmatch import ReFixMatch
 from datasets.ssl_dataset import SSL_Dataset, ImageNetLoader
 from datasets.data_utils import get_data_loader
 
@@ -103,7 +103,7 @@ def main_worker(gpu, ngpus_per_node, args):
     logger = get_logger(args.save_name, save_path, logger_level)
     logger.warning(f"USE GPU: {args.gpu} for training")
 
-    # SET DoubleMatch: class DoubleMatch in models.doublematch
+    # SET ReFixMatch: class ReFixMatch in models.refixmatch
     args.bn_momentum = 1.0 - 0.999
     if 'imagenet' in args.dataset.lower():
         _net_builder = net_builder('ResNet50', False, None, is_remix=False)
@@ -120,7 +120,7 @@ def main_worker(gpu, ngpus_per_node, args):
                                     'is_remix': False},
                                    )
 
-    model = DoubleMatch(_net_builder,
+    model = ReFixMatch(_net_builder,
                      args.num_classes,
                      args.ema_m,
                      args.T,
@@ -139,7 +139,7 @@ def main_worker(gpu, ngpus_per_node, args):
     scheduler = get_cosine_schedule_with_warmup(optimizer,
                                                 args.num_train_iter,
                                                 num_warmup_steps=args.num_train_iter * 0)
-    ## set SGD and cosine lr on DoubleMatch 
+    ## set SGD and cosine lr on ReFixMatch 
     model.set_optimizer(optimizer, scheduler)
 
     # SET Devices for (Distributed) DataParallel
@@ -186,11 +186,11 @@ def main_worker(gpu, ngpus_per_node, args):
  
     # Construct Dataset & DataLoader
     if args.dataset != "imagenet":
-        train_dset = SSL_Dataset(args, alg='doublematch', name=args.dataset, train=True,
+        train_dset = SSL_Dataset(args, alg='refixmatch', name=args.dataset, train=True,
                                 num_classes=args.num_classes, data_dir=args.data_dir)
         lb_dset, ulb_dset = train_dset.get_ssl_dset(args.num_labels)
 
-        _eval_dset = SSL_Dataset(args, alg='doublematch', name=args.dataset, train=False,
+        _eval_dset = SSL_Dataset(args, alg='refixmatch', name=args.dataset, train=False,
                                 num_classes=args.num_classes, data_dir=args.data_dir)
         eval_dset = _eval_dset.get_dset()
     else:
@@ -224,14 +224,14 @@ def main_worker(gpu, ngpus_per_node, args):
                                           num_workers=args.num_workers,
                                           drop_last=False)
 
-    ## set DataLoader on DoubleMatch
+    ## set DataLoader on ReFixMatch
     model.set_data_loader(loader_dict)
     model.set_dset(ulb_dset)
     # If args.resume, load checkpoints from args.load_path
     if args.resume:
         model.load_model(args.load_path)
 
-    # START TRAINING of DoubleMatch
+    # START TRAINING of ReFixMatch
     trainer = model.train
     for epoch in range(args.epoch):
         trainer(args, logger=logger)
@@ -263,14 +263,14 @@ if __name__ == "__main__":
     Saving & loading of the model.
     '''
     parser.add_argument('--save_dir', type=str, default='./saved_models')
-    parser.add_argument('-sn', '--save_name', type=str, default='doublematch')
+    parser.add_argument('-sn', '--save_name', type=str, default='refixmatch')
     parser.add_argument('--resume', action='store_true')
     parser.add_argument('--load_path', type=str, default=None)
     parser.add_argument('-o', '--overwrite', action='store_true')
     parser.add_argument('--use_tensorboard', action='store_true', help='Use tensorboard to plot and save curves, otherwise save the curves locally.')
 
     '''
-    Training Configuration of DoubleMatch
+    Training Configuration of ReFixMatch
     '''
 
     parser.add_argument('--epoch', type=int, default=1)

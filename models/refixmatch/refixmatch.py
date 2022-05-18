@@ -12,14 +12,14 @@ import os
 import contextlib
 from train_utils import AverageMeter
 
-from .doma_utils import consistency_loss, Get_Scalar
+from .refixmatch_utils import consistency_loss, Get_Scalar
 from train_utils import ce_loss, wd_loss, EMA, Bn_Controller
 
 from sklearn.metrics import *
 from copy import deepcopy
 
 
-class DoubleMatch:
+class ReFixMatch:
     def __init__(self, net_builder, num_classes, ema_m, T, p_cutoff, lambda_u, \
                  hard_label=True, t_fn=None, p_fn=None, it=0, num_eval_iter=1000, tb_log=None, logger=None):
         """
@@ -38,7 +38,7 @@ class DoubleMatch:
             logger: logger (see utils.py)
         """
 
-        super(DoubleMatch, self).__init__()
+        super(ReFixMatch, self).__init__()
 
         # momentum update param
         self.loader = {}
