@@ -1,5 +1,5 @@
 save_dir: ./saved_models
-save_name: sequencematch_imagenet_128k_0
+save_name: sequencematch_imagenet_100000_0
 resume: False
 load_path: None
 overwrite: True

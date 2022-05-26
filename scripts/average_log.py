@@ -112,7 +112,9 @@ import xlwt
 
 data_setting=['cifar10_40','cifar10_250','cifar10_4000','cifar100_400','cifar100_2500','cifar100_10000','stl10_40','stl10_250','stl10_1000','svhn_40','svhn_250','svhn_1000']
 show_acc = ['BestAcc','Top1_1','Top1_20','Top1_50','Top5_1','Top5_20','Top5_50']
-algs = ['pimodel','pseudolabel','pseudolabel_flex','meanteacher','vat','mixmatch','remixmatch','uda','uda_flex','fixmatch','flexmatch','fullysupervised']
+show_acc = ['Top1_20']
+# algs = ['pimodel','pseudolabel','pseudolabel_flex','meanteacher','vat','mixmatch','remixmatch','uda','uda_flex','fixmatch','flexmatch','fullysupervised','sequencematch','refixmatch']
+algs = ['sequencematch','doublematch','doublematch_flex']
 workbook = xlwt.Workbook()
 for i in range(len(show_acc)):
     worksheet = workbook.add_sheet(show_acc[i],cell_overwrite_ok=True)

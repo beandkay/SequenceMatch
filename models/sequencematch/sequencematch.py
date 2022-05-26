@@ -12,8 +12,8 @@ import os
 import contextlib
 from train_utils import AverageMeter
 
-from .sequencematch_utils import consistency_loss_flex, Get_Scalar
-from ..uda.uda_utils import consistency_loss as consistency_loss_uda
+from .sequencematch_utils import consistency_loss as consistency_loss_flex
+from ..uda.uda_utils import consistency_loss as consistency_loss_uda, Get_Scalar
 from train_utils import ce_loss, wd_loss, EMA, Bn_Controller
 
 from sklearn.metrics import *
@@ -169,7 +169,7 @@ class SequenceMatch:
                 T = self.t_fn(self.it)
                 p_cutoff = self.p_fn(self.it)
 
-                unsup_loss_wm, _ = consistency_loss_uda(logits_x_ulb_m,
+                unsup_loss_mw, _ = consistency_loss_uda(logits_x_ulb_m,
                                                         logits_x_ulb_w,
                                                         classwise_acc,
                                                         self.it,
@@ -205,7 +205,7 @@ class SequenceMatch:
                 if x_ulb_idx[select == 1].nelement() != 0:
                     selected_label[x_ulb_idx[select == 1]] = pseudo_lb[select == 1]
 
-                total_loss = sup_loss + self.lambda_u * (unsup_loss + unsup_loss_wm + unsup_loss_sm + unsup_loss_sw)
+                total_loss = sup_loss + self.lambda_u * (unsup_loss + unsup_loss_mw + unsup_loss_sm + unsup_loss_sw)
 
             # parameter updates
             if args.amp:
@@ -229,8 +229,10 @@ class SequenceMatch:
 
             # tensorboard_dict update
             tb_dict = {}
+            for i in range(args.num_classes):
+                tb_dict[f'classwise_acc/{i}'] = classwise_acc[i].detach()
             tb_dict['train/sup_loss'] = sup_loss.detach()
-            tb_dict['train/unsup_loss_mw'] = unsup_loss_wm.detach()
+            tb_dict['train/unsup_loss_mw'] = unsup_loss_mw.detach()
             tb_dict['train/unsup_loss_sm'] = unsup_loss_sm.detach()
             tb_dict['train/unsup_loss_sw'] = unsup_loss_sw.detach()
             tb_dict['train/unsup_loss'] = unsup_loss.detach()

@@ -5,7 +5,7 @@ import numpy as np
 
 from train_utils import ce_loss
 
-def consistency_loss_flex(logits_s, logits_w, class_acc, p_target, p_model, name='ce',
+def consistency_loss(logits_s, logits_w, class_acc, p_target, p_model, name='ce',
                      T=1.0, p_cutoff=0.0, use_hard_labels=True, use_DA=False):
     assert name in ['ce', 'L2']
     logits_w = logits_w.detach()
