@@ -10,12 +10,14 @@ from utils import net_builder
 from models.fixmatch.fixmatch import FixMatch
 from models.flexmatch.flexmatch import FlexMatch
 from models.refixmatch.refixmatch import ReFixMatch
+from models.sequencematch.sequencematch import SequenceMatch
 import numpy as np
 import pandas as pd
 # from tsne import bh_sne
 from sklearn.manifold import TSNE
 import seaborn as sns
 import matplotlib.pyplot as plt
+plt.rcParams.update({'font.size': 18})
 
 parser = argparse.ArgumentParser(description='PyTorch t-SNE for STL10')
 parser.add_argument('--load_path', type=str, default=None)
@@ -41,7 +43,7 @@ transform = transforms.Compose([
     transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
 ])
 
-dataset = torchvision.datasets.STL10(root='data', split='train', download=True, transform=transform)
+dataset = torchvision.datasets.STL10(root='data', split='test', download=True, transform=transform)
 dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=False, num_workers=4)
 
 # set model
@@ -58,7 +60,7 @@ _net_builder = net_builder("WideResNetVar",
                             'is_remix': False},
                             )
 
-net = FlexMatch(_net_builder,
+net = SequenceMatch(_net_builder,
                 10,
                 0.999,
                 0.5,
@@ -116,7 +118,6 @@ def tsne_plot(save_dir, targets, outputs):
         data=df,
         marker='o',
         legend="full",
-        alpha=0.5
     )
 
     plt.xticks([])
@@ -124,7 +125,7 @@ def tsne_plot(save_dir, targets, outputs):
     plt.xlabel('')
     plt.ylabel('')
     plt.tight_layout(pad=0.4)
-    plt.savefig(os.path.join(save_dir,'FlexMatch.pdf'), format='pdf', dpi=1000, tight_layout=True)
+    plt.savefig(os.path.join(save_dir,'SequenceMatch.pdf'), format='pdf', dpi=1000, tight_layout=True)
     print('done!')
 
 targets, outputs = gen_features()
