@@ -3,6 +3,7 @@ data/
 saved_models/
 results/
 .dvcignore
+.dvc/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
