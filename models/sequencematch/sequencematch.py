@@ -201,7 +201,8 @@ class SequenceMatch:
                                                                                 'ce', T, p_cutoff,
                                                                                 use_hard_labels=args.hard_label,
                                                                                 use_DA=args.use_DA,
-                                                                                use_refixmatch=args.use_refixmatch)
+                                                                                use_refixmatch=args.use_refixmatch,
+                                                                                use_flex=args.use_flex)
 
                 if x_ulb_idx[select == 1].nelement() != 0:
                     selected_label[x_ulb_idx[select == 1]] = pseudo_lb[select == 1]
