@@ -1,5 +1,5 @@
 save_dir: ./saved_models
-save_name: sequencematch_svhn_40_0
+save_name: sequencematch_svhn_40_0_no_flex
 resume: False
 load_path: None
 overwrite: True
@@ -38,11 +38,7 @@ seed: 0
 world_size: 1
 rank: 0
 multiprocessing_distributed: True
-dist_url: tcp://127.0.0.1:10011
-seed: 1
-world_size: 1
-rank: 0
-multiprocessing_distributed: True
 dist_url: tcp://127.0.0.1:10061
 dist_backend: nccl
 gpu: None
+use_flex: False

@@ -1,5 +1,5 @@
 save_dir: ./saved_models
-save_name: sequencematch_imagenet_100000_0
+save_name: sequencematch_imagenet_100000_0_no_flex
 resume: False
 load_path: None
 overwrite: True
@@ -21,7 +21,7 @@ optim: SGD
 lr: 0.03
 momentum: 0.9
 weight_decay: 0.0003
-amp: False
+amp: True
 net: ResNet50
 net_from_name: False
 depth: 0
@@ -41,3 +41,4 @@ multiprocessing_distributed: True
 dist_url: tcp://127.0.0.1:10057
 dist_backend: nccl
 gpu: None
+use_flex: False
