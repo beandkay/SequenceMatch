@@ -295,6 +295,7 @@ if __name__ == "__main__":
     parser.add_argument('--use_DA', type=str2bool, default=False)
     parser.add_argument('-w', '--thresh_warmup', type=str2bool, default=True)
     parser.add_argument('--use_flex', type=str2bool, default=False)
+    parser.add_argument('--use_refixmatch', type=str2bool, default=False)
 
     '''
     Optimizer configurations

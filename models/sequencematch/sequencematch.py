@@ -12,7 +12,7 @@ import os
 import contextlib
 from train_utils import AverageMeter
 
-from .sequencematch_utils import consistency_loss as consistency_loss_flex
+from .sequencematch_utils import consistency_loss
 from ..uda.uda_utils import consistency_loss as consistency_loss_uda, Get_Scalar
 from train_utils import ce_loss, wd_loss, EMA, Bn_Controller
 
@@ -193,14 +193,15 @@ class SequenceMatch:
                                                         'kld_tf', T, p_cutoff,
                                                         use_flex=args.use_flex)
                 
-                unsup_loss, mask, select, pseudo_lb, p_model =  consistency_loss_flex(logits_x_ulb_s,
-                                                                                        logits_x_ulb_w,
-                                                                                        classwise_acc,
-                                                                                        p_target,
-                                                                                        p_model,
-                                                                                        'ce', T, p_cutoff,
-                                                                                        use_hard_labels=args.hard_label,
-                                                                                        use_DA=args.use_DA)
+                unsup_loss, mask, select, pseudo_lb, p_model =  consistency_loss(logits_x_ulb_s,
+                                                                                logits_x_ulb_w,
+                                                                                classwise_acc,
+                                                                                p_target,
+                                                                                p_model,
+                                                                                'ce', T, p_cutoff,
+                                                                                use_hard_labels=args.hard_label,
+                                                                                use_DA=args.use_DA,
+                                                                                use_refixmatch=args.use_refixmatch)
 
                 if x_ulb_idx[select == 1].nelement() != 0:
                     selected_label[x_ulb_idx[select == 1]] = pseudo_lb[select == 1]

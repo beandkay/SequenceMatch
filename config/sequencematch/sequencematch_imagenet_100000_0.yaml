@@ -11,6 +11,7 @@ num_labels: 100000
 batch_size: 128
 eval_batch_size: 256
 hard_label: True
+use_refixmatch: False
 T: 0.5
 p_cutoff: 0.7
 ulb_loss_ratio: 1.0

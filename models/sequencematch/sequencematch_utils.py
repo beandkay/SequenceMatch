@@ -6,7 +6,7 @@ import numpy as np
 from train_utils import ce_loss
 
 def consistency_loss(logits_s, logits_w, class_acc, p_target, p_model, name='ce',
-                     T=1.0, p_cutoff=0.0, use_hard_labels=True, use_DA=False):
+                     T=1.0, p_cutoff=0.0, use_hard_labels=True, use_DA=False, use_refixmatch=False):
     assert name in ['ce', 'L2']
     logits_w = logits_w.detach()
     if name == 'L2':
@@ -27,11 +27,16 @@ def consistency_loss(logits_s, logits_w, class_acc, p_target, p_model, name='ce'
             pseudo_label = (pseudo_label / pseudo_label.sum(dim=-1, keepdim=True))
 
         max_probs, max_idx = torch.max(pseudo_label, dim=-1)
-        # mask = max_probs.ge(p_cutoff * (class_acc[max_idx] + 1.) / 2).float()  # linear
-        # mask = max_probs.ge(p_cutoff * (1 / (2. - class_acc[max_idx]))).float()  # low_limit
-        mask = max_probs.ge(p_cutoff * (class_acc[max_idx] / (2. - class_acc[max_idx]))).float()  # convex
-        # mask = max_probs.ge(p_cutoff * (torch.log(class_acc[max_idx] + 1.) + 0.5)/(math.log(2) + 0.5)).float()  # concave
-        select = max_probs.ge(p_cutoff).long()
+        
+        if use_refixmatch:
+            mask = max_probs.ge(p_cutoff).float()
+            select = max_probs.ge(p_cutoff).long()
+        else:
+            # mask = max_probs.ge(p_cutoff * (class_acc[max_idx] + 1.) / 2).float()  # linear
+            # mask = max_probs.ge(p_cutoff * (1 / (2. - class_acc[max_idx]))).float()  # low_limit
+            mask = max_probs.ge(p_cutoff * (class_acc[max_idx] / (2. - class_acc[max_idx]))).float()  # convex
+            # mask = max_probs.ge(p_cutoff * (torch.log(class_acc[max_idx] + 1.) + 0.5)/(math.log(2) + 0.5)).float()  # concave
+            select = max_probs.ge(p_cutoff).long()
         if use_hard_labels:
             masked_loss = ce_loss(logits_s, max_idx, use_hard_labels, reduction='none') * mask
         else:
