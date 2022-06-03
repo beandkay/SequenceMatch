@@ -1,5 +1,5 @@
 save_dir: ./saved_models
-save_name: sequencematch_stl10_250_0_no_flex
+save_name: sequencematch_stl10_250_0
 resume: False
 load_path: None
 overwrite: True
@@ -41,4 +41,4 @@ multiprocessing_distributed: True
 dist_url: tcp://127.0.0.1:10059
 dist_backend: nccl
 gpu: None
-use_flex: False
+use_flex: True
