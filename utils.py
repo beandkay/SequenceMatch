@@ -69,7 +69,6 @@ def net_builder(net_name, from_name: bool, net_conf=None, is_remix=False):
         elif net_name == 'WideResNetVar':
             import models.nets.wrn_var as net
             builder = getattr(net, 'build_WideResNetVar')()
-        elif net_name == 'WideResNetVarSD':
         elif net_name == 'ResNet50':
             import models.nets.resnet as net
             builder = getattr(net, 'build_ResNet50')(is_remix)
