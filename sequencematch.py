@@ -196,7 +196,7 @@ def main_worker(gpu, ngpus_per_node, args):
         eval_dset = _eval_dset.get_dset()
     else:
         image_loader = ImageNetLoader(root_path=args.data_dir, num_labels=args.num_labels,
-                                      num_class=args.num_classes, medium=False)
+                                      num_class=args.num_classes, medium=True)
         lb_dset = image_loader.get_lb_train_data()
         ulb_dset = image_loader.get_ulb_train_data()
         eval_dset = image_loader.get_lb_test_data()
